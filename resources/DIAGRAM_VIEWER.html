@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaunchGraph V1 — Interactive Architecture & Pipeline Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 32px auto;
+      padding: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      align-items: center;
+    }
+    button.btn {
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 600;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    button.btn:hover {
+      background: #7dd3fc;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: #334155;
+      color: #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover {
+      background: #475569;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+    .diagram-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+    }
+    /* Scrollable, zoomable viewport */
+    .viewport {
+      width: 100%;
+      overflow: auto;
+      background: #0b1120;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      padding: 20px;
+      text-align: center;
+      min-height: 380px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .mermaid {
+      width: 100%;
+      display: inline-block;
+    }
+
+    /* Print-specific rules so PDF exports fit on a single page cleanly */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .header, .toolbar, .nav-links {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        gap: 0 !important;
+      }
+      .diagram-card {
+        background: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+        page-break-before: always !important;
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
+        padding: 20px 0 !important;
+      }
+      .card-title {
+        color: #000000 !important;
+      }
+      .card-desc {
+        color: #475569 !important;
+        border-bottom: 1px solid #cbd5e1 !important;
+      }
+      .viewport {
+        background: #ffffff !important;
+        border: none !important;
+        overflow: visible !important;
+        max-width: 100% !important;
+      }
+      svg {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <span class="badge">College Viva & Evaluation Guide</span>
+    <h1>LaunchGraph V1 — Architecture & Sequential Pipeline Viewer</h1>
+    <p class="subtitle">
+      Interactive, pan/zoomable, and print-ready visualizer for LaunchGraph V1 architecture, 6-stage sequential processing flow, lifecycle transitions, and Mem0 long-term memory graph.
+    </p>
+    <div class="toolbar">
+      <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF (Single-Page Optimized)</button>
+      <div class="nav-links">
+        <a class="nav-btn" href="#diagram-1">1. Sequential 6-Stage Pipeline</a>
+        <a class="nav-btn" href="#diagram-2">2. System Context & Services</a>
+        <a class="nav-btn" href="#diagram-3">3. Lifecycle State Machine</a>
+        <a class="nav-btn" href="#diagram-4">4. Mem0 Algorithm 1 Memory Graph</a>
+        <a class="nav-btn" href="#diagram-5">5. 30% Milestone vs 70% Roadmap</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- DIAGRAM 1: SEQUENTIAL 6-STAGE PIPELINE -->
+    <div class="diagram-card" id="diagram-1">
+      <div class="card-title">1. The Sequential 6-Stage Processing Pipeline</div>
+      <div class="card-desc">
+        Shows the continuous end-to-end journey of telemetry from developer action to downstream AI agent memory. Highlight: Stages 1 and 2 comprise the completed 30% milestone.
+      </div>
+      <div class="viewport">
+        <div class="mermaid">
+flowchart TD
+    subgraph S1Details["Stage 1: Ingestion (:8001) ★ COMPLETED 15% ★"]
+        direction TB
+        WH[Inbound Webhook Inbox] --> Dedupe[Deduplication & Secret Scrubbing]
+        Dedupe --> SE[(source_events: Sanitized Data)]
+    end
+
+    subgraph S2Details["Stage 2: Normalization (:8002) ★ COMPLETED 15% ★"]
+        direction TB
+        Refs[Deterministic Reference Extraction] --> Anchors[Anchor Resolution Hierarchy]
+        Anchors --> Ledger[(change_membership Ledger)]
+        Ledger --> CE[(change_events: Unified Feature)]
+    end
+
+    subgraph S3Details["Stage 3: Decisioning (:8003) — Next 15%"]
+        direction TB
+        Facts[Deterministic Facts & Sensitivity] --> Evidence[12,000-Token Evidence Pack]
+        Evidence --> Judgment[Claude Opus Judgment Q1-Q9]
+        Judgment --> Policy[Restrict-Only Policy Engine]
+        Policy --> LC[(launch_candidates: Tiers T0-T3)]
+    end
+
+    subgraph S4Details["Stage 4: Generation (:8004) — Next 15%"]
+        direction TB
+        ContextAssm[6-Block Context + Mem0 Injected] --> Writer[Claude Generation Engine]
+        Writer --> Linters[14 Deterministic Safety Linters]
+        Linters --> GP[(gtm_packs: Draft Copy)]
+    end
+
+    subgraph S5Details["Stage 5: Review & Memory (:8005) — Next 10%"]
+        direction TB
+        Review[PMM Review Dashboard + Reason Chips] --> Finalize[Atomic Database Finalization]
+        Finalize --> LR[(launch_records)]
+        LR --> Mem0Engine[Mem0 Graph Memory Engine]
+    end
+
+    subgraph S6Details["Stage 6: A2A Egress (:8006) — Next 10%"]
+        direction TB
+        EgressFilter[5-Stage Egress Filter Gate] --> ExternalAgents[Downstream AI Agents]
+    end
+
+    S1Details ==>|Raw Events| S2Details
+    S2Details -.->|★ 30% Milestone Cutoff ★| S3Details
+    S3Details ==>|Classified Candidate| S4Details
+    S4Details ==>|GTM Pack Drafts| S5Details
+    S5Details ==>|Verified Memory| S6Details
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM 2: SYSTEM TOPOLOGY & PROCESS BOUNDARIES -->
+    <div class="diagram-card" id="diagram-2">
+      <div class="card-title">2. System Context & Component Topology</div>
+      <div class="card-desc">
+        Illustrates how external source systems (GitHub, Jira, Slack) feed into LaunchGraph's modular microservices, backed by PostgreSQL 16 + pgvector and Claude Opus.
+      </div>
+      <div class="viewport">
+        <div class="mermaid">
+flowchart TD
+    subgraph External["External Telemetry Sources"]
+        GH[GitHub App Webhooks]
+        Jira[Jira Cloud Webhooks]
+        Slack[Slack Workspace Events]
+    end
+
+    subgraph Platform["LaunchGraph Microservice Platform"]
+        direction TB
+        Ingest[Ingestion Service :8001]
+        Norm[Normalizer Service :8002]
+        Decide[Decisioner Service :8003]
+        Gen[Generator Service :8004]
+        Dash[Dashboard Service :8005]
+        A2A[A2A Interface :8006]
+    end
+
+    subgraph Storage["Shared Foundation & Database"]
+        Core[launchgraph_core: Models, Crypto, Workers]
+        PG[(PostgreSQL 16 + pgvector)]
+    end
+
+    subgraph AI["External AI Foundation Model"]
+        Claude[Anthropic Claude Opus 5 / Sonnet 5]
+    end
+
+    subgraph Consumers["Downstream Consumers"]
+        Human[Human PMM Reviewers]
+        Agents[Downstream AI Marketing Agents]
+    end
+
+    GH -->|Webhooks| Ingest
+    Jira -->|Webhooks| Ingest
+    Slack -->|Events API| Ingest
+
+    Ingest --> Norm --> Decide --> Gen --> Dash --> A2A
+
+    Platform -.-> Core
+    Core -.-> PG
+
+    Decide -->|k=3 Judgment| Claude
+    Gen -->|GTM Draft Generation| Claude
+
+    Dash -->|Approval UI| Human
+    A2A -->|OpenAPI / Skill Feed| Agents
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM 3: LIFECYCLE STATE MACHINE -->
+    <div class="diagram-card" id="diagram-3">
+      <div class="card-title">3. Entity Lifecycle State Machine</div>
+      <div class="card-desc">
+        Tracks the complete lifecycle of a software change from inbound webhook arrival through normalization, tier decisioning, safety verification, and Mem0 memory persistence.
+      </div>
+      <div class="viewport">
+        <div class="mermaid">
+flowchart TD
+    S0([Inbound Webhook Arrives]) --> S1[IngestionPending]
+    S1 -->|HMAC OK & Secret Scrubbed| S2[SourceEventCreated]
+    
+    S2 -->|Reference Extractor Matches| S3[ChangeDiscovered]
+    S3 -->|Commits / PRs Linked| S4[ChangeInProgress]
+    S4 -->|PR Merged / Ticket Closed| S5[ChangeMerged]
+    
+    S5 -.->|★ 30% Completed State ★| S6[CandidatePendingReview]
+    
+    S6 -->|Claude Consensus Confirms Tier| S7[CandidateConfirmed]
+    S6 -->|Irrelevant Fix Suppressed| SX1[CandidateRejected]
+    
+    S7 -->|6-Block Generation Triggered| S8[PackDraft]
+    S8 -->|14 Linters & Claim Verifier Pass| S9[PackInReview]
+    
+    S9 -->|Human Approver Signs Off| S10[PackFinalized]
+    S10 -->|Atomic Transaction Snapshot| S11[LaunchRecordCreated]
+    
+    S11 -->|Mem0 Algorithm 1 Ingestion| S12[(Mem0 Memory Graph Stored)]
+    S11 -.->|Emergency Code Rollback| S13[LaunchRetracted]
+    S13 -.->|Graph Node Soft-Invalidated| S14[(Mem0 Memory Invalidated)]
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM 4: MEM0 LONG-TERM MEMORY ENGINE -->
+    <div class="diagram-card" id="diagram-4">
+      <div class="card-title">4. Mem0 Long-Term Memory Graph & Algorithm 1</div>
+      <div class="card-desc">
+        Based on Chhikara et al. (2025): How LaunchGraph maintains a dynamic entity-relationship graph rather than naive text chunking, achieving &lt;200ms query latency.
+      </div>
+      <div class="viewport">
+        <div class="mermaid">
+flowchart TD
+    subgraph Mem0Extraction["Phase 1: Fact Extraction"]
+        direction TB
+        FinalizedPack["Finalized Launch Record and Assets"] --> Extractor["LLM Triplet Extractor"]
+        Extractor --> CandidateFacts["Candidate Facts and Triplets"]
+    end
+
+    subgraph Mem0Update["Phase 2: Algorithm 1 Memory Update"]
+        direction TB
+        VectorSearch["Top-S Similar Memory Search via pgvector"]
+        VectorSearch --> Classifier{"LLM Operation Classifier"}
+        
+        Classifier -->|Novel Feature| OpADD["ADD: Insert New Capability Node"]
+        Classifier -->|Richer Context| OpUPDATE["UPDATE: Augment Existing Node"]
+        Classifier -->|Superseded/Reverted| OpDELETE["DELETE: Soft-Invalidate Node"]
+        Classifier -->|Redundant/Known| OpNOOP["NOOP: Discard Without Bloat"]
+    end
+
+    subgraph Mem0Store["Phase 3: Mem0g Graph Storage"]
+        direction TB
+        GraphStore[(PostgreSQL 16 + pgvector)]
+    end
+
+    CandidateFacts --> VectorSearch
+    OpADD --> GraphStore
+    OpUPDATE --> GraphStore
+    OpDELETE --> GraphStore
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM 5: GANTT ROADMAP -->
+    <div class="diagram-card" id="diagram-5">
+      <div class="card-title">5. Implementation Roadmap (30% Completed vs 70% Ahead)</div>
+      <div class="card-desc">
+        Milestone distribution showing completed Batches (0, M1, M2 Core) and the planned progression to 100% General Availability.
+      </div>
+      <div class="viewport">
+        <div class="mermaid">
+gantt
+    title LaunchGraph V1 Implementation Distribution
+    dateFormat X
+    axisFormat %s%%
+
+    section Completed (30%)
+    Batch 0 Database Schema & Contracts (10%) :done, 0, 10
+    Milestone M1 Ingestion & Hygiene (15%)    :done, 10, 25
+    Milestone M2 Normalization Core (5%)       :done, 25, 30
+
+    section Remaining (70%)
+    Milestone M2 Graph Completion (10%)        :active, 30, 40
+    Stage 3 Decisioning Engine (15%)           : 40, 55
+    Stage 4 Generation & Linters (15%)         : 55, 70
+    Stage 5 Review UI & Mem0 Engine (10%)      : 70, 80
+    Stage 6 A2A Protocol & Egress (10%)        : 80, 90
+    Stage 7 Pilot Gate & GA Hardening (10%)    : 90, 100
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+</body>
+</html>

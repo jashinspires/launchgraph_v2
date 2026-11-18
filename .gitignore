@@ -27,13 +27,15 @@ share/python-wheels/
 MANIFEST
 
 # Virtual Environments
-.env
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Environment variables & secrets
+.env
 
 # Testing & Coverage
 .pytest_cache/
@@ -59,16 +61,3 @@ instance/
 *.swo
 *~
 .DS_Store
-
-# Internal design specifications, presentations & binary artifacts
-resources/
-scratch/
-*.pdf
-*.pptx
-
-# Temporary presentation guides and viewer scratchpad
-COLLEGE_PRESENTATION_GUIDE.md
-LaunchGraph V1 - Architecture & Sequential Pipeline Viewer.md
-Untitled.md
-Pasted image *.png
-scripts/generate_50_percent_report_pdf.py
