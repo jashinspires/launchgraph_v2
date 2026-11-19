@@ -1,0 +1,73 @@
+{
+  "name": "launchgraph-vscode",
+  "displayName": "LaunchGraph Pre-Flight & PMM Review",
+  "description": "VS Code Sidebar Extension for Engineer Pre-Flight Telemetry Checks, GTM Launch Candidate Review, and 14-Rule Copy Safety Linting.",
+  "version": "1.0.0",
+  "publisher": "launchgraph",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:launchgraph.sidebarView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "launchgraph-container",
+          "title": "LaunchGraph",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "launchgraph-container": [
+        {
+          "type": "webview",
+          "id": "launchgraph.sidebarView",
+          "name": "Pre-Flight & GTM Review"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "launchgraph.runPreflight",
+        "title": "LaunchGraph: Run Pre-Flight Scan on Active Editor"
+      },
+      {
+        "command": "launchgraph.refresh",
+        "title": "LaunchGraph: Refresh Candidates & Triage"
+      }
+    ],
+    "configuration": {
+      "title": "LaunchGraph",
+      "properties": {
+        "launchgraph.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "LaunchGraph API backend base URL."
+        },
+        "launchgraph.workspaceId": {
+          "type": "string",
+          "default": "11111111-1111-1111-1111-111111111111",
+          "description": "Default LaunchGraph Workspace UUID."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.7.0"
+  }
+}

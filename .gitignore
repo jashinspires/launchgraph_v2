@@ -34,8 +34,13 @@ ENV/
 env.bak/
 venv.bak/
 
+# Node.js
+node_modules/
+
 # Environment variables & secrets
 .env
+.env.*
+!.env.example
 
 # Testing & Coverage
 .pytest_cache/
@@ -52,6 +57,7 @@ coverage.xml
 *.sqlite
 *.sqlite3
 instance/
+data/
 
 # IDE & Editor settings
 .idea/
@@ -61,3 +67,6 @@ instance/
 *.swo
 *~
 .DS_Store
+
+# Browser verification artifacts
+.playwright-cli/

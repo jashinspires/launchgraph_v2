@@ -1,0 +1,5 @@
+{
+  "name": "LaunchGraph",
+  "description": "Cross-Platform Webhook Ingestion, Data Normalization & Context-Linking Pipeline for GitHub, Jira, and Slack.",
+  "requestFramePermissions": []
+}
